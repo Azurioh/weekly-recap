@@ -1,6 +1,6 @@
-# weekly-recap
+# git-recap
 
-A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that gives you a recap of the changes in your repository over the last 7 days — a **detailed technical section** for developers, plus a **plain-language summary** for non-technical readers (managers, clients).
+A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that recaps the changes in your repository over **any time window you describe in plain language** — a **detailed technical section** for developers, plus a **plain-language summary** for non-technical readers (managers, clients).
 
 ## Install
 
@@ -8,33 +8,30 @@ From the [`azurioh-plugins`](https://github.com/Azurioh/claude-plugins) marketpl
 
 ```
 /plugin marketplace add Azurioh/claude-plugins
-/plugin install weekly-recap@azurioh-plugins
+/plugin install git-recap@azurioh-plugins
 ```
 
 ## Usage
 
-Run inside any git repository:
+Run inside any git repository. Describe the window in your own words (French or English) — or pass nothing for the last 7 days:
 
 ```
-/weekly-recap
+/git-recap                       # last 7 days (default)
+/git-recap les 2 derniers jours  # last 2 days
+/git-recap 2 weeks               # last 2 weeks
+/git-recap 1 mois --prs          # last month, including GitHub PRs
+/git-recap 1y --save             # last year, also exported to markdown
 ```
+
+The window accepts plain phrases ("les 2 dernières semaines", "last 2 days", "1 month") and shorthand (`2d`, `2w`, `1mo`, `1y`, or a bare number = days). The command always reports the period it resolved so you can confirm the interpretation.
 
 ### Flags
 
 | Flag | Effect |
 |---|---|
 | `--prs` (or `--pr`) | Also include GitHub Pull Requests (merged & open). **Requires `gh` installed and authenticated** (`gh auth login`). |
-| `--save` (or `--file`) | Also write the recap to `weekly-recap-<YYYY-MM-DD>.md` at the repo root. |
-| `--days N` | Use an N-day window instead of 7. |
+| `--save` (or `--file`) | Also write the recap to `git-recap-<YYYY-MM-DD>.md` at the repo root. |
 | `fr` / `en` | Output language. Defaults to your conversation language, otherwise French. |
-
-Examples:
-
-```
-/weekly-recap --prs
-/weekly-recap --days 14 --save
-/weekly-recap en --prs --save
-```
 
 ## Output
 
