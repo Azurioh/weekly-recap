@@ -1,0 +1,10 @@
+{
+  "name": "git-recap",
+  "displayName": "Git Recap",
+  "description": "Slash command that recaps a repository's changes over any time window you describe in plain language ('the last 2 days', '2 weeks', '1 month') — a detailed technical section plus a plain-language summary for non-technical readers. Optional GitHub PR enrichment (needs gh) and markdown export.",
+  "version": "0.1.0",
+  "author": { "name": "Azurioh" },
+  "repository": "https://github.com/Azurioh/git-recap",
+  "license": "MIT",
+  "keywords": ["recap", "git", "changelog", "summary", "report", "changes"]
+}
