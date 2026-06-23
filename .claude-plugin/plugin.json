@@ -1,0 +1,10 @@
+{
+  "name": "weekly-recap",
+  "displayName": "Weekly Recap",
+  "description": "Slash command that builds a 7-day recap of repository changes — a detailed technical section plus a plain-language summary for non-technical readers. Optional GitHub PR enrichment (needs gh) and markdown export.",
+  "version": "0.1.0",
+  "author": { "name": "Azurioh" },
+  "repository": "https://github.com/Azurioh/weekly-recap",
+  "license": "MIT",
+  "keywords": ["recap", "git", "changelog", "weekly", "summary", "report"]
+}
