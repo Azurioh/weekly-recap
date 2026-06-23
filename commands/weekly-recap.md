@@ -1,59 +1,59 @@
 ---
-description: Récap des changements des 7 derniers jours — section technique détaillée + résumé non-technique. Flags — --prs (inclut les PRs GitHub via gh), --save (export markdown), --days N, fr|en.
+description: Recap of the last 7 days of changes — a detailed technical section plus a non-technical summary. Flags — --prs (include GitHub PRs via gh), --save (markdown export), --days N, fr|en.
 argument-hint: [--prs] [--save] [--days N] [fr|en]
 allowed-tools: Bash(git rev-parse:*), Bash(git log:*), Bash(git shortlog:*), Bash(git diff:*), Bash(git branch:*), Bash(git remote:*), Bash(command -v gh:*), Bash(gh auth status:*), Bash(gh pr list:*), Bash(date:*), Write
 ---
 
-Tu génères un récap des changements du dépôt sur une fenêtre récente (7 jours par défaut), en **deux parties** : un récap technique détaillé, puis un résumé non-technique. Le but est qu'un dev ait le détail utile, et qu'un non-technique (manager, client) comprenne sans jargon.
+Generate a recap of the repository's changes over a recent window (7 days by default), in **two parts**: a detailed technical recap, then a non-technical summary. The goal is for a developer to get the useful detail, and for a non-technical reader (manager, client) to understand it without jargon.
 
 ## Arguments
 
-Arguments bruts : `$ARGUMENTS`
+Raw arguments: `$ARGUMENTS`
 
-Parse les flags suivants (l'ordre n'importe pas) :
-- `--prs` ou `--pr` → inclure les Pull Requests GitHub. **Nécessite `gh` installé et authentifié.**
-- `--save` ou `--file` → écrire aussi le récap dans un fichier markdown.
-- `--days N` → remplace la fenêtre de 7 jours par N jours.
-- `fr` / `en` → langue de sortie. Par défaut : **la langue de l'utilisateur dans cette conversation**, sinon **français**.
+Parse the following flags (order doesn't matter):
+- `--prs` or `--pr` → include GitHub Pull Requests. **Requires `gh` installed and authenticated.**
+- `--save` or `--file` → also write the recap to a markdown file.
+- `--days N` → replace the 7-day window with N days.
+- `fr` / `en` → output language. Default: **the user's language in this conversation**, otherwise **French**.
 
-## 1. Collecte des données (git)
+## 1. Collect the data (git)
 
-D'abord, vérifie qu'on est dans un repo git : `git rev-parse --is-inside-work-tree`. Sinon, arrête-toi et signale-le clairement.
+First, verify you're inside a git repo: `git rev-parse --is-inside-work-tree`. If not, stop and say so clearly.
 
-Définis la fenêtre `SINCE` : `7 days ago` par défaut (ou `N days ago` si `--days N`).
+Define the window `SINCE`: `7 days ago` by default (or `N days ago` if `--days N`).
 
-Lance ces commandes (adapte au besoin) :
-- `git log --since="$SINCE" --date=short --pretty=format:'%h%x09%ad%x09%an%x09%s'` — liste des commits (hash, date, auteur, sujet).
-- `git log --since="$SINCE" --shortstat --pretty=format:'%h %s'` — volume de changements par commit (fichiers, lignes +/-) à agréger.
-- `git log --since="$SINCE" --name-only --pretty=format:''` — fichiers touchés, pour regrouper par module/dossier.
-- `git shortlog -sn --since="$SINCE"` — contributeurs et nombre de commits.
-- `git branch --show-current` et `git remote get-url origin` — contexte (branche, dépôt).
+Run these commands (adapt as needed):
+- `git log --since="$SINCE" --date=short --pretty=format:'%h%x09%ad%x09%an%x09%s'` — commit list (hash, date, author, subject).
+- `git log --since="$SINCE" --shortstat --pretty=format:'%h %s'` — change volume per commit (files, +/- lines) to aggregate.
+- `git log --since="$SINCE" --name-only --pretty=format:''` — touched files, to group by module/folder.
+- `git shortlog -sn --since="$SINCE"` — contributors and commit counts.
+- `git branch --show-current` and `git remote get-url origin` — context (branch, repo).
 
-**Si aucun commit dans la fenêtre** : dis-le clairement et ne fabrique rien. Propose `--days N` pour élargir.
+**If there are no commits in the window**: say so clearly and don't fabricate anything. Suggest `--days N` to widen the window.
 
-## 2. Pull Requests GitHub (uniquement si `--prs`)
+## 2. GitHub Pull Requests (only if `--prs`)
 
-Vérifie d'abord la dispo : `command -v gh` puis `gh auth status`.
-- Si `gh` absent ou non authentifié : **signale-le** (« installe et connecte `gh` — `gh auth login` — pour inclure les PRs ») et **continue sans les PRs**, sans bloquer le reste.
+First check availability: `command -v gh` then `gh auth status`.
+- If `gh` is missing or not authenticated: **flag it** ("install and log in to `gh` — `gh auth login` — to include PRs") and **continue without the PRs**, without blocking the rest.
 
-Sinon, calcule la date de début (macOS : `date -v-7d +%F` ; Linux : `date -d '7 days ago' +%F` ; adapte si `--days N`), puis :
+Otherwise, compute the start date (macOS: `date -v-7d +%F`; Linux: `date -d '7 days ago' +%F`; adapt for `--days N`), then:
 - `gh pr list --state merged --search "merged:>=<DATE>" --json number,title,author,mergedAt,labels`
 - `gh pr list --state open --json number,title,author,createdAt`
 
-## 3. Sortie — deux parties
+## 3. Output — two parts
 
-Écris dans la langue choisie. **Ne recopie pas bêtement la liste des commits : regroupe et interprète** le sens des changements à partir des sujets de commits et des fichiers touchés.
+Write in the chosen language. **Don't just copy the commit list: group and interpret** the meaning of the changes from commit subjects and touched files.
 
-### Partie A — Récap technique détaillé (pour un dev)
-- **En-tête** : dépôt, branche, période réelle couverte (dates), nb de commits, nb de fichiers touchés, lignes ajoutées/supprimées, contributeurs.
-- **Changements regroupés** par thème / module / feature. Pour chaque groupe : ce qui a changé et, si déductible, pourquoi.
-- **Points d'attention** : nouveaux modules ou dépendances, refactors structurants, breaking changes, migrations de schéma/DB, corrections importantes, dette technique introduite.
-- Si `--prs` : **PRs mergées** (`#num — titre — auteur`) et **PRs encore ouvertes** (travail en cours).
+### Part A — Detailed technical recap (for a developer)
+- **Header**: repo, branch, actual period covered (dates), number of commits, number of touched files, added/removed lines, contributors.
+- **Grouped changes** by theme / module / feature. For each group: what changed and, where deducible, why.
+- **Points of attention**: new modules or dependencies, structural refactors, breaking changes, schema/DB migrations, important fixes, technical debt introduced.
+- If `--prs`: **merged PRs** (`#num — title — author`) and **still-open PRs** (work in progress).
 
-### Partie B — Résumé non-technique (pour un manager / client)
-- 3 à 6 puces en **langage simple**, formulées en **valeur et impact** : ce qui a été **ajouté**, **amélioré**, **corrigé**.
-- **Zéro jargon** : pas de noms de fichiers, de fonctions, ni de termes techniques. Une personne non-technique doit comprendre chaque puce.
+### Part B — Non-technical summary (for a manager / client)
+- 3 to 6 bullets in **plain language**, framed as **value and impact**: what was **added**, **improved**, **fixed**.
+- **Zero jargon**: no file names, function names, or technical terms. A non-technical person must understand every bullet.
 
-## 4. Export (uniquement si `--save`)
+## 4. Export (only if `--save`)
 
-Écris les deux parties dans `weekly-recap-<YYYY-MM-DD>.md` à la racine du repo courant (date du jour), puis indique le chemin du fichier créé. Sans `--save`, n'écris aucun fichier — affiche tout dans le chat.
+Write both parts to `weekly-recap-<YYYY-MM-DD>.md` at the root of the current repo (today's date), then report the path of the created file. Without `--save`, write no file — print everything in the chat.
